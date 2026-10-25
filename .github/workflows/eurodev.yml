@@ -1,11 +1,18 @@
-name: EuroDev Oracle
+name: EuroDev Oracle Runner
 
 on:
   issues:
     types: [opened]
   issue_comment:
     types: [created]
+  schedule:
+    - cron: '0 8 * * *'
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Mode (interact or hunt)'
+        required: false
+        default: 'interact'
 
 permissions:
   issues: write
@@ -15,20 +22,21 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout repository (for advanced scan)
+        uses: actions/checkout@v4
+
+      - name: Run EuroDev Oracle Action
+        uses: alfrexo95/eurodev-oracle-action@v1.1.0
         with:
-          python-version: '3.11'
-      - run: pip install requests
-      - name: Run Bot
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          etherscan-api-key: ${{ secrets.ETHERSCAN_API_KEY }}
+          crypto-address-eth: ${{ secrets.CRYPTO_ADDRESS_ETH }}
+          pat-token: ${{ secrets.PAT_TOKEN }}
         env:
-          GITHUB_TOKEN:       ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY:  ${{ github.repository }}
-          ISSUE_NUMBER:       ${{ github.event.issue.number }}
-          ISSUE_USER:         ${{ github.event.issue.user.login || github.event.comment.user.login }}
-          ISSUE_BODY:         ${{ github.event.issue.body }}
-          COMMENT_BODY:       ${{ github.event.comment.body }}
-          EVENT_NAME:         ${{ github.event_name }}
-          ETHERSCAN_API_KEY:  ${{ secrets.ETHERSCAN_API_KEY }}
-          CRYPTO_ADDRESS_ETH: ${{ secrets.CRYPTO_ADDRESS_ETH }}
-        run: python eurodev.py
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_USER: ${{ github.event.issue.user.login || github.event.comment.user.login }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          EVENT_NAME: ${{ github.event_name }}
+          MODE: ${{ inputs.mode || 'interact' }}
