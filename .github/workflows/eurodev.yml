@@ -6,27 +6,23 @@ on:
   issue_comment:
     types: [created]
   schedule:
-    - cron: '0 8 * * *'
+    # Se ejecuta cada 15 minutos de forma automática
+    - cron: '*/15 * * * *'
   workflow_dispatch:
-    inputs:
-      mode:
-        description: 'Mode (interact or hunt)'
-        required: false
-        default: 'interact'
 
 permissions:
   issues: write
-  contents: read
+  contents: write # CRÍTICO: Permite guardar el archivo LEADS.md
 
 jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository (for advanced scan)
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Run EuroDev Oracle Action
-        uses: alfrexo95/eurodev-oracle-action@v1.1.0
+        uses: alfrexo95/eurodev-oracle-action@v1.2.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           etherscan-api-key: ${{ secrets.ETHERSCAN_API_KEY }}
@@ -39,4 +35,3 @@ jobs:
           ISSUE_BODY: ${{ github.event.issue.body }}
           COMMENT_BODY: ${{ github.event.comment.body }}
           EVENT_NAME: ${{ github.event_name }}
-          MODE: ${{ inputs.mode || 'interact' }}
