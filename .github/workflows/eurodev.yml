@@ -6,13 +6,12 @@ on:
   issue_comment:
     types: [created]
   schedule:
-    # Se ejecuta cada 15 minutos de forma automática
     - cron: '*/15 * * * *'
   workflow_dispatch:
 
 permissions:
   issues: write
-  contents: write # CRÍTICO: Permite guardar el archivo LEADS.md
+  contents: write
 
 jobs:
   run:
@@ -22,11 +21,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run EuroDev Oracle Action
-        uses: alfrexo95/eurodev-oracle-action@v1.2.0
+        uses: alfrexo95/eurodev-oracle-action@v1.3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           etherscan-api-key: ${{ secrets.ETHERSCAN_API_KEY }}
           crypto-address-eth: ${{ secrets.CRYPTO_ADDRESS_ETH }}
+          crypto-address-btc: ${{ secrets.CRYPTO_ADDRESS_BTC }}
           pat-token: ${{ secrets.PAT_TOKEN }}
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
