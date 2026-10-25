@@ -1,0 +1,34 @@
+name: EuroDev Oracle
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Run Bot
+        env:
+          GITHUB_TOKEN:       ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY:  ${{ github.repository }}
+          ISSUE_NUMBER:       ${{ github.event.issue.number }}
+          ISSUE_USER:         ${{ github.event.issue.user.login || github.event.comment.user.login }}
+          ISSUE_BODY:         ${{ github.event.issue.body }}
+          COMMENT_BODY:       ${{ github.event.comment.body }}
+          EVENT_NAME:         ${{ github.event_name }}
+          ETHERSCAN_API_KEY:  ${{ secrets.ETHERSCAN_API_KEY }}
+          CRYPTO_ADDRESS_ETH: ${{ secrets.CRYPTO_ADDRESS_ETH }}
+        run: python eurodev.py
